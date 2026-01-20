@@ -1,10 +1,234 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Dentistry GPA Calculator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dental GPA Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 2rem;
+      max-width: 1000px;
+      margin: auto;
+    }
+    h1, h2, h3 { text-align: center; }
+    select, button {
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      width: 100%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.4rem;
+      text-align: center;
+    }
+    .semester { margin-top: 2rem; }
+    :root {
+      --bg-color: #f5f7fa;
+      --text-color: #000;
+    }
+    .dark-mode {
+      --bg-color: #1e1e1e;
+      --text-color: #f5f5f5;
+    }
+    .whatsapp-float {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #25D366;
+      color: white;
+      border-radius: 50px;
+      padding: 10px 15px;
+      font-size: 16px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-  <h1>It works 🎉</h1>
-  <p>Dentistry GPA Calculator</p>
+
+<h1>Dental GPA Calculator 🦷</h1>
+
+<label>Select Academic Year:</label>
+<select id="yearSelector" onchange="switchYear()">
+  <option value="1">First Year</option>
+  <option value="2">Second Year</option>
+</select>
+
+<button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+<button onclick="resetAllData()" style="background-color: crimson; color: white;">Reset All Data</button>
+
+<div id="yearContainer"></div>
+<h2 id="cgpaDisplay"></h2>
+
+<a href="https://wa.me/201500068950" class="whatsapp-float" target="_blank">
+  🟩 <strong>Feedback</strong>
+</a>
+
+<script>
+const gpaScale = {
+  'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+  'C+': 2.3, 'C': 2.0, 'C-': 1.7, 'D+': 1.3, 'D': 1.0, 'F': 0.0
+};
+
+const emojiMap = {
+  'English': '📘', 'Biochemistry': '⚗️', 'G. Anatomy': '🦴', 'G. Histology': '🔬',
+  'Physiology': '❤️', 'Dental Anatomy': '🦷', 'Computer': '💻', 'Biostatistics': '📊',
+  'Microbiology': '🦠', 'Operative Dentistry Technology': '🪥',
+  'Fixed Prosthodontics Technology': '🦷', 'Removal Prosthodontics Technology': '😁',
+  'Pharmacology': '💊', 'Dental Bio Materials': '🧪', 'Oral Biology': '🧬',
+  'G. Pathology': '🧫'
+};
+
+const courseData = {
+  1: [
+    { semester: 1, courses: [
+      { name: 'English (1)', base: 'English', credits: 2 },
+      { name: 'Biochemistry (1)', base: 'Biochemistry', credits: 3 },
+      { name: 'G. Anatomy (1)', base: 'G. Anatomy', credits: 3 },
+      { name: 'G. Histology (1)', base: 'G. Histology', credits: 3 },
+      { name: 'Physiology (1)', base: 'Physiology', credits: 3 },
+      { name: 'Dental Anatomy (1)', base: 'Dental Anatomy', credits: 3 },
+      { name: 'Computer (1)', base: 'Computer', credits: 3 },
+    ]},
+    { semester: 2, courses: [
+      { name: 'English (2)', base: 'English', credits: 2 },
+      { name: 'Biochemistry (2)', base: 'Biochemistry', credits: 3 },
+      { name: 'G. Anatomy (2)', base: 'G. Anatomy', credits: 3 },
+      { name: 'G. Histology (2)', base: 'G. Histology', credits: 3 },
+      { name: 'Physiology (2)', base: 'Physiology', credits: 4 },
+      { name: 'Dental Anatomy (2)', base: 'Dental Anatomy', credits: 2 },
+      { name: 'Biostatistics', base: 'Biostatistics', credits: 1 },
+    ]}
+  ],
+  2: [
+    { semester: 1, courses: [
+      { name: 'Microbiology (1)', base: 'Microbiology', credits: 2 },
+      { name: 'Operative Dentistry Technology (1)', base: 'Operative Dentistry Technology', credits: 2 },
+      { name: 'Fixed Prosthodontics Technology (1)', base: 'Fixed Prosthodontics Technology', credits: 2 },
+      { name: 'Removal Prosthodontics Technology (1)', base: 'Removal Prosthodontics Technology', credits: 2 },
+      { name: 'Pharmacology (1)', base: 'Pharmacology', credits: 3 },
+      { name: 'Dental Bio Materials (1)', base: 'Dental Bio Materials', credits: 3 },
+      { name: 'Oral Biology (1)', base: 'Oral Biology', credits: 3 },
+      { name: 'G. Pathology (1)', base: 'G. Pathology', credits: 3 },
+    ]},
+    { semester: 2, courses: [
+      { name: 'Microbiology (2)', base: 'Microbiology', credits: 2 },
+      { name: 'Operative Dentistry Technology (2)', base: 'Operative Dentistry Technology', credits: 2 },
+      { name: 'Fixed Prosthodontics Technology (2)', base: 'Fixed Prosthodontics Technology', credits: 2 },
+      { name: 'Removal Prosthodontics Technology (2)', base: 'Removal Prosthodontics Technology', credits: 2 },
+      { name: 'Pharmacology (2)', base: 'Pharmacology', credits: 2 },
+      { name: 'Dental Bio Materials (2)', base: 'Dental Bio Materials', credits: 3 },
+      { name: 'Oral Biology (2)', base: 'Oral Biology', credits: 3 },
+      { name: 'G. Pathology (2)', base: 'G. Pathology', credits: 2 },
+    ]}
+  ]
+};
+
+function switchYear() {
+  const year = document.getElementById('yearSelector').value;
+  const container = document.getElementById('yearContainer');
+  container.innerHTML = '';
+
+  courseData[year].forEach((sem, index) => {
+    const table = document.createElement('table');
+    table.innerHTML = `<thead><tr><th colspan="3">Year ${year} - Semester ${index+1}</th></tr><tr><th>Course</th><th>CH</th><th>Grade</th></tr></thead>`;
+    const tbody = document.createElement('tbody');
+
+    sem.courses.forEach(course => {
+      const key = `${year}-${index+1}-${course.name}`;
+      const grades = JSON.parse(localStorage.getItem('grades') || '{}');
+      const saved = grades[key] || '';
+      const options = Object.keys(gpaScale).map(g => `<option ${g===saved?'selected':''}>${g}</option>`).join('');
+
+      tbody.innerHTML += `<tr>
+        <td>${emojiMap[course.base]} ${course.name}</td>
+        <td>${course.credits}</td>
+        <td><select data-key="${key}" data-credits="${course.credits}" onchange="saveGrade(this)"><option value=""></option>${options}</select></td>
+      </tr>`;
+    });
+
+    table.appendChild(tbody);
+    container.appendChild(table);
+
+    const gpa = document.createElement('h3');
+    gpa.id = `gpa-${year}-${index+1}`;
+    container.appendChild(gpa);
+  });
+  updateGPA();
+}
+
+function saveGrade(sel) {
+  const grades = JSON.parse(localStorage.getItem('grades') || '{}');
+  grades[sel.dataset.key] = sel.value;
+  localStorage.setItem('grades', JSON.stringify(grades));
+  updateGPA();
+}
+
+function calculateGPA(year, sem) {
+  const grades = JSON.parse(localStorage.getItem('grades') || '{}');
+  let points = 0, credits = 0;
+  courseData[year][sem-1].courses.forEach(c => {
+    const g = grades[`${year}-${sem}-${c.name}`];
+    if (g) {
+      points += gpaScale[g] * c.credits;
+      credits += c.credits;
+    }
+  });
+  return credits ? (points/credits).toFixed(2) : 'N/A';
+}
+
+function calculateCGPA() {
+  const grades = JSON.parse(localStorage.getItem('grades') || '{}');
+  let points = 0, credits = 0;
+  for (const y in courseData) {
+    courseData[y].forEach((s, i) => {
+      s.courses.forEach(c => {
+        const g = grades[`${y}-${i+1}-${c.name}`];
+        if (g) {
+          points += gpaScale[g] * c.credits;
+          credits += c.credits;
+        }
+      });
+    });
+  }
+  return credits ? (points/credits).toFixed(2) : '0.00';
+}
+
+function updateGPA() {
+  for (const y in courseData) {
+    courseData[y].forEach((_, i) => {
+      const el = document.getElementById(`gpa-${y}-${i+1}`);
+      if (el) el.innerText = `Semester GPA: ${calculateGPA(y, i+1)}`;
+    });
+  }
+  document.getElementById('cgpaDisplay').innerText = `Cumulative GPA (CGPA): ${calculateCGPA()}`;
+}
+
+function resetAllData() {
+  if (confirm('Reset all data?')) {
+    localStorage.removeItem('grades');
+    switchYear();
+  }
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+}
+
+window.onload = switchYear;
+</script>
 </body>
 </html>
