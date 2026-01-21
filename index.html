@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dental GPA Calculator</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,33 +14,39 @@
       max-width: 1000px;
       margin: auto;
     }
+
     h1, h2, h3 { text-align: center; }
+
     select, button {
       padding: 0.5rem;
       margin: 0.5rem 0;
       width: 100%;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
       font-size: 0.85rem;
     }
+
     th, td {
       border: 1px solid #ccc;
       padding: 0.4rem;
       text-align: center;
     }
-    .semester { margin-top: 2rem; }
+
     :root {
       --bg-color: #f5f7fa;
       --text-color: #000;
     }
+
     .dark-mode {
       --bg-color: #1e1e1e;
       --text-color: #f5f5f5;
     }
-   .whatsapp-float {
+
+    .whatsapp-float {
       position: fixed;
       bottom: 20px;
       right: 20px;
@@ -54,25 +61,22 @@
       align-items: center;
       gap: 8px;
       text-decoration: none;
+    }
 
-       ...
-}
+    /* ANDROID SELECT FIX */
+    td select {
+      min-width: 80px;
+      width: auto;
+    }
 
-/* ANDROID SELECT FIX */
-td select {
-  min-width: 80px;
-  width: auto;
-}
-
-select {
-  padding-right: 24px;
-  -webkit-appearance: menulist;
-  appearance: auto;
-}
-
+    select {
+      padding-right: 24px;
+      -webkit-appearance: menulist;
+      appearance: auto;
     }
   </style>
 </head>
+
 <body>
 
 <h1>Dental GPA Calculator 🦷</h1>
@@ -81,10 +85,15 @@ select {
 <select id="yearSelector" onchange="switchYear()">
   <option value="1">First Year</option>
   <option value="2">Second Year</option>
+  <option value="3">Third Year</option>
+  <option value="4">Fourth Year</option>
+  <option value="5">Fifth Year</option>
 </select>
 
 <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
-<button onclick="resetAllData()" style="background-color: crimson; color: white;">Reset All Data</button>
+<button onclick="resetAllData()" style="background-color: crimson; color: white;">
+  Reset All Data
+</button>
 
 <div id="yearContainer"></div>
 <h2 id="cgpaDisplay"></h2>
@@ -94,65 +103,149 @@ select {
 </a>
 
 <script>
+/* ================= GPA SCALE ================= */
 const gpaScale = {
   'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7,
   'C+': 2.3, 'C': 2.0, 'C-': 1.7, 'D+': 1.3, 'D': 1.0, 'F': 0.0
 };
 
+/* ================= EMOJIS ================= */
 const emojiMap = {
-  'English': '📘', 'Biochemistry': '⚗️', 'G. Anatomy': '🦴', 'G. Histology': '🔬',
-  'Physiology': '❤️', 'Dental Anatomy': '🦷', 'Computer': '💻', 'Biostatistics': '📊',
-  'Microbiology': '🦠', 'Operative Dentistry Technology': '🪥',
-  'Fixed Prosthodontics Technology': '🦷', 'Removal Prosthodontics Technology': '😁',
-  'Pharmacology': '💊', 'Dental Bio Materials': '🧪', 'Oral Biology': '🧬',
-  'G. Pathology': '🧫'
+  'English':'📘','Biochemistry':'⚗️','G. Anatomy':'🦴','G. Histology':'🔬',
+  'Physiology':'❤️','Dental Anatomy':'🦷','Computer':'💻','Biostatistics':'📊',
+  'Microbiology':'🦠','Operative Dentistry':'🪥','Fixed Prosthodontics':'😁',
+  'Removal Prosthodontics':'🙂','Pharmacology':'💊','Dental Bio Materials':'🧪',
+  'Oral Biology':'🧬','G. Pathology':'🧫','Oral Pathology':'🧫',
+  'Oral Radiology':'🩻','G. Medicine':'🩺','G. Surgery':'🔪',
+  'Preventive Dentistry':'🌍','Oral Surgery':'🦷','Orthodontics':'🦷',
+  'Oral Diagnosis':'🩺','Oral Medicine':'💊','Endodontics':'🦷',
+  'Periodontology':'🦷','Pedodontics':'👶','Implantology':'🔩','Elective':'⭐'
 };
 
+/* ================= COURSE DATA ================= */
 const courseData = {
+  /* ---------- FIRST YEAR ---------- */
   1: [
     { semester: 1, courses: [
-      { name: 'English (1)', base: 'English', credits: 2 },
-      { name: 'Biochemistry (1)', base: 'Biochemistry', credits: 3 },
-      { name: 'G. Anatomy (1)', base: 'G. Anatomy', credits: 3 },
-      { name: 'G. Histology (1)', base: 'G. Histology', credits: 3 },
-      { name: 'Physiology (1)', base: 'Physiology', credits: 3 },
-      { name: 'Dental Anatomy (1)', base: 'Dental Anatomy', credits: 3 },
-      { name: 'Computer (1)', base: 'Computer', credits: 3 },
+      { name:'English (1)', base:'English', credits:2 },
+      { name:'Biochemistry (1)', base:'Biochemistry', credits:3 },
+      { name:'G. Anatomy (1)', base:'G. Anatomy', credits:3 },
+      { name:'G. Histology (1)', base:'G. Histology', credits:3 },
+      { name:'Physiology (1)', base:'Physiology', credits:3 },
+      { name:'Dental Anatomy (1)', base:'Dental Anatomy', credits:3 },
+      { name:'Computer (1)', base:'Computer', credits:3 }
     ]},
     { semester: 2, courses: [
-      { name: 'English (2)', base: 'English', credits: 2 },
-      { name: 'Biochemistry (2)', base: 'Biochemistry', credits: 3 },
-      { name: 'G. Anatomy (2)', base: 'G. Anatomy', credits: 3 },
-      { name: 'G. Histology (2)', base: 'G. Histology', credits: 3 },
-      { name: 'Physiology (2)', base: 'Physiology', credits: 4 },
-      { name: 'Dental Anatomy (2)', base: 'Dental Anatomy', credits: 2 },
-      { name: 'Biostatistics', base: 'Biostatistics', credits: 1 },
+      { name:'English (2)', base:'English', credits:2 },
+      { name:'Biochemistry (2)', base:'Biochemistry', credits:3 },
+      { name:'G. Anatomy (2)', base:'G. Anatomy', credits:3 },
+      { name:'G. Histology (2)', base:'G. Histology', credits:3 },
+      { name:'Physiology (2)', base:'Physiology', credits:4 },
+      { name:'Dental Anatomy (2)', base:'Dental Anatomy', credits:2 },
+      { name:'Biostatistics', base:'Biostatistics', credits:1 }
     ]}
   ],
+
+  /* ---------- SECOND YEAR ---------- */
   2: [
     { semester: 1, courses: [
-      { name: 'Microbiology (1)', base: 'Microbiology', credits: 2 },
-      { name: 'Operative Dentistry Technology (1)', base: 'Operative Dentistry Technology', credits: 2 },
-      { name: 'Fixed Prosthodontics Technology (1)', base: 'Fixed Prosthodontics Technology', credits: 2 },
-      { name: 'Removal Prosthodontics Technology (1)', base: 'Removal Prosthodontics Technology', credits: 2 },
-      { name: 'Pharmacology (1)', base: 'Pharmacology', credits: 3 },
-      { name: 'Dental Bio Materials (1)', base: 'Dental Bio Materials', credits: 3 },
-      { name: 'Oral Biology (1)', base: 'Oral Biology', credits: 3 },
-      { name: 'G. Pathology (1)', base: 'G. Pathology', credits: 3 },
+      { name:'Microbiology (1)', base:'Microbiology', credits:2 },
+      { name:'Operative Dentistry Technology (1)', base:'Operative Dentistry', credits:2 },
+      { name:'Fixed Prosthodontics Technology (1)', base:'Fixed Prosthodontics', credits:2 },
+      { name:'Removal Prosthodontics Technology (1)', base:'Removal Prosthodontics', credits:2 },
+      { name:'Pharmacology (1)', base:'Pharmacology', credits:3 },
+      { name:'Dental Bio Materials (1)', base:'Dental Bio Materials', credits:3 },
+      { name:'Oral Biology (1)', base:'Oral Biology', credits:3 },
+      { name:'G. Pathology (1)', base:'G. Pathology', credits:3 }
     ]},
     { semester: 2, courses: [
-      { name: 'Microbiology (2)', base: 'Microbiology', credits: 2 },
-      { name: 'Operative Dentistry Technology (2)', base: 'Operative Dentistry Technology', credits: 2 },
-      { name: 'Fixed Prosthodontics Technology (2)', base: 'Fixed Prosthodontics Technology', credits: 2 },
-      { name: 'Removal Prosthodontics Technology (2)', base: 'Removal Prosthodontics Technology', credits: 2 },
-      { name: 'Pharmacology (2)', base: 'Pharmacology', credits: 2 },
-      { name: 'Dental Bio Materials (2)', base: 'Dental Bio Materials', credits: 3 },
-      { name: 'Oral Biology (2)', base: 'Oral Biology', credits: 3 },
-      { name: 'G. Pathology (2)', base: 'G. Pathology', credits: 2 },
+      { name:'Microbiology (2)', base:'Microbiology', credits:2 },
+      { name:'Operative Dentistry Technology (2)', base:'Operative Dentistry', credits:2 },
+      { name:'Fixed Prosthodontics Technology (2)', base:'Fixed Prosthodontics', credits:2 },
+      { name:'Removal Prosthodontics Technology (2)', base:'Removal Prosthodontics', credits:2 },
+      { name:'Pharmacology (2)', base:'Pharmacology', credits:2 },
+      { name:'Dental Bio Materials (2)', base:'Dental Bio Materials', credits:3 },
+      { name:'Oral Biology (2)', base:'Oral Biology', credits:3 },
+      { name:'G. Pathology (2)', base:'G. Pathology', credits:2 }
+    ]}
+  ],
+
+  /* ---------- THIRD YEAR ---------- */
+  3: [
+    { semester: 1, courses: [
+      { name:'Oral Pathology (1)', base:'Oral Pathology', credits:3 },
+      { name:'Operative Dentistry (3)', base:'Operative Dentistry', credits:2 },
+      { name:'Fixed Prosthodontics (3)', base:'Fixed Prosthodontics', credits:2 },
+      { name:'Removal Prosthodontics (3)', base:'Removal Prosthodontics', credits:2 },
+      { name:'Endodontics (1)', base:'Endodontics', credits:2 },
+      { name:'Oral Radiology & Forensic Dentistry (1)', base:'Oral Radiology', credits:2 },
+      { name:'G. Medicine (1)', base:'G. Medicine', credits:2 },
+      { name:'G. Surgery (1)', base:'G. Surgery', credits:2 }
+    ]},
+    { semester: 2, courses: [
+      { name:'Oral Pathology (2)', base:'Oral Pathology', credits:3 },
+      { name:'Operative Dentistry (1)', base:'Operative Dentistry', credits:2 },
+      { name:'Fixed Prosthodontics (1)', base:'Fixed Prosthodontics', credits:2 },
+      { name:'Removal Prosthodontics (3)', base:'Removal Prosthodontics', credits:2 },
+      { name:'Oral Radiology & Forensic Dentistry (2)', base:'Oral Radiology', credits:2 },
+      { name:'G. Medicine (2)', base:'G. Medicine', credits:1 },
+      { name:'G. Surgery (2)', base:'G. Surgery', credits:2 },
+      { name:'Preventive Dentistry & Ethics', base:'Preventive Dentistry', credits:2 },
+      { name:'Elective Course', base:'Elective', credits:2 }
+    ]}
+  ],
+
+  /* ---------- FOURTH YEAR ---------- */
+  4: [
+    { semester: 1, courses: [
+      { name:'Operative Dentistry (2)', base:'Operative Dentistry', credits:3 },
+      { name:'Fixed Prosthodontics (2)', base:'Fixed Prosthodontics', credits:3 },
+      { name:'Removal Prosthodontics (2)', base:'Removal Prosthodontics', credits:3 },
+      { name:'Oral Surgery (1)', base:'Oral Surgery', credits:3 },
+      { name:'Orthodontics (1)', base:'Orthodontics', credits:2 },
+      { name:'Oral Diagnosis (1)', base:'Oral Diagnosis', credits:2 },
+      { name:'Oral Medicine (1)', base:'Oral Medicine', credits:3 },
+      { name:'Elective Course', base:'Elective', credits:2 }
+    ]},
+    { semester: 2, courses: [
+      { name:'Operative Dentistry (3)', base:'Operative Dentistry', credits:2 },
+      { name:'Fixed Prosthodontics (3)', base:'Fixed Prosthodontics', credits:2 },
+      { name:'Removal Prosthodontics (3)', base:'Removal Prosthodontics', credits:2 },
+      { name:'Endodontics (1)', base:'Endodontics', credits:2 },
+      { name:'Oral Surgery (2)', base:'Oral Surgery', credits:3 },
+      { name:'Orthodontics (2)', base:'Orthodontics', credits:2 },
+      { name:'Oral Diagnosis (2)', base:'Oral Diagnosis', credits:2 },
+      { name:'Oral Medicine (2)', base:'Oral Medicine', credits:3 }
+    ]}
+  ],
+
+  /* ---------- FIFTH YEAR ---------- */
+  5: [
+    { semester: 1, courses: [
+      { name:'Operative Dentistry (4)', base:'Operative Dentistry', credits:2 },
+      { name:'Fixed Prosthodontics (4)', base:'Fixed Prosthodontics', credits:2 },
+      { name:'Removal Prosthodontics (4)', base:'Removal Prosthodontics', credits:2 },
+      { name:'Endodontics (2)', base:'Endodontics', credits:2 },
+      { name:'Oral Surgery (3)', base:'Oral Surgery', credits:3 },
+      { name:'Oral Medicine (3)', base:'Oral Medicine', credits:2 },
+      { name:'Periodontology (1)', base:'Periodontology', credits:2 },
+      { name:'Pedodontics (1)', base:'Pedodontics', credits:3 },
+      { name:'Elective Course', base:'Elective', credits:2 }
+    ]},
+    { semester: 2, courses: [
+      { name:'Operative Dentistry (5)', base:'Operative Dentistry', credits:2 },
+      { name:'Fixed Prosthodontics (5)', base:'Fixed Prosthodontics', credits:2 },
+      { name:'Removal Prosthodontics (5)', base:'Removal Prosthodontics', credits:2 },
+      { name:'Endodontics (3)', base:'Endodontics', credits:2 },
+      { name:'Oral Surgery (4)', base:'Oral Surgery', credits:3 },
+      { name:'Periodontology (2)', base:'Periodontology', credits:2 },
+      { name:'Pedodontics (2)', base:'Pedodontics', credits:3 },
+      { name:'Implantology', base:'Implantology', credits:1 }
     ]}
   ]
 };
 
+/* ================= LOGIC ================= */
 function switchYear() {
   const year = document.getElementById('yearSelector').value;
   const container = document.getElementById('yearContainer');
@@ -160,29 +253,41 @@ function switchYear() {
 
   courseData[year].forEach((sem, index) => {
     const table = document.createElement('table');
-    table.innerHTML = `<thead><tr><th colspan="3">Year ${year} - Semester ${index+1}</th></tr><tr><th>Course</th><th>CH</th><th>Grade</th></tr></thead>`;
+    table.innerHTML =
+      `<thead>
+        <tr><th colspan="3">Year ${year} - Semester ${index + 1}</th></tr>
+        <tr><th>Course</th><th>CH</th><th>Grade</th></tr>
+      </thead>`;
     const tbody = document.createElement('tbody');
 
     sem.courses.forEach(course => {
-      const key = `${year}-${index+1}-${course.name}`;
+      const key = `${year}-${index + 1}-${course.name}`;
       const grades = JSON.parse(localStorage.getItem('grades') || '{}');
       const saved = grades[key] || '';
-      const options = Object.keys(gpaScale).map(g => `<option ${g===saved?'selected':''}>${g}</option>`).join('');
+      const options = Object.keys(gpaScale)
+        .map(g => `<option ${g === saved ? 'selected' : ''}>${g}</option>`)
+        .join('');
 
-      tbody.innerHTML += `<tr>
-        <td>${emojiMap[course.base]} ${course.name}</td>
-        <td>${course.credits}</td>
-        <td><select data-key="${key}" data-credits="${course.credits}" onchange="saveGrade(this)"><option value=""></option>${options}</select></td>
-      </tr>`;
+      tbody.innerHTML += `
+        <tr>
+          <td>${emojiMap[course.base] || '📘'} ${course.name}</td>
+          <td>${course.credits}</td>
+          <td>
+            <select data-key="${key}" onchange="saveGrade(this)">
+              <option value=""></option>${options}
+            </select>
+          </td>
+        </tr>`;
     });
 
     table.appendChild(tbody);
     container.appendChild(table);
 
     const gpa = document.createElement('h3');
-    gpa.id = `gpa-${year}-${index+1}`;
+    gpa.id = `gpa-${year}-${index + 1}`;
     container.appendChild(gpa);
   });
+
   updateGPA();
 }
 
@@ -196,23 +301,26 @@ function saveGrade(sel) {
 function calculateGPA(year, sem) {
   const grades = JSON.parse(localStorage.getItem('grades') || '{}');
   let points = 0, credits = 0;
-  courseData[year][sem-1].courses.forEach(c => {
+
+  courseData[year][sem - 1].courses.forEach(c => {
     const g = grades[`${year}-${sem}-${c.name}`];
     if (g) {
       points += gpaScale[g] * c.credits;
       credits += c.credits;
     }
   });
-  return credits ? (points/credits).toFixed(2) : 'N/A';
+
+  return credits ? (points / credits).toFixed(2) : 'N/A';
 }
 
 function calculateCGPA() {
   const grades = JSON.parse(localStorage.getItem('grades') || '{}');
   let points = 0, credits = 0;
+
   for (const y in courseData) {
     courseData[y].forEach((s, i) => {
       s.courses.forEach(c => {
-        const g = grades[`${y}-${i+1}-${c.name}`];
+        const g = grades[`${y}-${i + 1}-${c.name}`];
         if (g) {
           points += gpaScale[g] * c.credits;
           credits += c.credits;
@@ -220,17 +328,19 @@ function calculateCGPA() {
       });
     });
   }
-  return credits ? (points/credits).toFixed(2) : '0.00';
+
+  return credits ? (points / credits).toFixed(2) : '0.00';
 }
 
 function updateGPA() {
   for (const y in courseData) {
     courseData[y].forEach((_, i) => {
-      const el = document.getElementById(`gpa-${y}-${i+1}`);
-      if (el) el.innerText = `Semester GPA: ${calculateGPA(y, i+1)}`;
+      const el = document.getElementById(`gpa-${y}-${i + 1}`);
+      if (el) el.innerText = `Semester GPA: ${calculateGPA(y, i + 1)}`;
     });
   }
-  document.getElementById('cgpaDisplay').innerText = `Cumulative GPA (CGPA): ${calculateCGPA()}`;
+  document.getElementById('cgpaDisplay').innerText =
+    `Cumulative GPA (CGPA): ${calculateCGPA()}`;
 }
 
 function resetAllData() {
@@ -246,5 +356,6 @@ function toggleDarkMode() {
 
 window.onload = switchYear;
 </script>
+
 </body>
 </html>
